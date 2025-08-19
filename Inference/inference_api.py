@@ -1,5 +1,6 @@
 # inference_api.py
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from inference import predict_from_clean
 
@@ -17,6 +18,10 @@ def predict(req: InferReq):
         req.test_clean_filename, req.model_filename, req.output_filename, req.target_col
     )
     return {"status": "ok", "predictions_file": out}
+
+@app.get("/health")
+def health_check():
+    return JSONResponse(content={"status": "ok"})
 
 if __name__ == "__main__":
     import uvicorn

@@ -15,11 +15,23 @@ def predict_from_clean(
     model_path = os.path.join(SHARED_DIR, model_filename)
     out_path   = os.path.join(SHARED_DIR, output_filename)
 
-    test = pd.read_csv(test_path)
+    df = pd.read_csv(test_path)
+
     with open(model_path, 'rb') as f:
         model = pickle.load(f)
 
-    X_test = test.copy()
-    test[target_col] = model.predict(X_test)
-    test.to_csv(out_path, index=False)
+    X = df.copy()
+
+    if hasattr(model, "feature_names_in_"):
+        expected = list(model.feature_names_in_)
+        X = X.reindex(columns=expected, fill_value=0)
+    else:
+        for col in ["Survived"]:
+            if col in X.columns:
+                X = X.drop(columns=[col])
+
+    preds = model.predict(X)
+
+    df[target_col] = preds
+    df.to_csv(out_path, index=False)
     return output_filename
