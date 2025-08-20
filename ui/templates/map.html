@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Column Mapping</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+</head>
+<body class="bg-light">
+  <div class="container py-5">
+    <div class="card shadow-lg p-4 rounded-4">
+      <h2 class="text-center mb-2">Map Columns for {{ filename }}</h2>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="alert alert-danger mt-2" role="alert">
+              {% for m in messages %}
+                <div>{{ m }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      <p class="text-muted text-center">
+        Map your CSV columns to the expected fields. The
+        <strong>{{ target_name or 'Survived' }}</strong> column is <em>optional</em> and will be
+        <strong>dropped before inference</strong>.
+      </p>
+
+      <form action="/apply-mapping" method="post" class="mt-3">
+        <input type="hidden" name="filename" value="{{ filename }}" />
+
+        <div class="row g-3">
+          {% for exp in expected %}
+            <div class="col-md-6">
+              <label class="form-label">
+                {{ exp }}
+                {% if exp in ['Sex','Pclass','Embarked','Age','Fare'] %}
+                  <span class="text-danger">*</span>
+                {% else %}
+                  <span class="text-muted">(optional; dropped before inference)</span>
+                {% endif %}
+              </label>
+              <select class="form-select" name="{{ exp }}">
+                <option value="">-- None --</option>
+                {% for c in columns %}
+                  {% set sel = 'selected' if suggested.get(exp)==c else '' %}
+                  <option value="{{ c }}" {{ sel }}>{{ c }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-primary px-4">Validate & Run</button>
+          <a href="/" class="btn btn-outline-secondary ms-2">Back</a>
+        </div>
+      </form>
+
+      <hr class="my-4" />
+      <h6>Columns detected in your file:</h6>
+      <code>{{ columns }}</code>
+    </div>
+  </div>
+</body>
+</html>
