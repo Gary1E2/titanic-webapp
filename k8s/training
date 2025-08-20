@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: training
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: training
+  template:
+    metadata:
+      labels:
+        app: training
+    spec:
+      containers:
+        - name: training
+          image: aiad-training:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8001
+          env:
+            - name: SHARED_DIR
+              value: /usr/src/app/shared_volume
+          volumeMounts:
+            - name: shared
+              mountPath: /usr/src/app/shared_volume
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 15
+            periodSeconds: 20
+      volumes:
+        - name: shared
+          persistentVolumeClaim:
+            claimName: shared-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: training
+spec:
+  selector:
+    app: training
+  ports:
+    - port: 8001
+      targetPort: 8001

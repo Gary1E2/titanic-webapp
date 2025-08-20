@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inference
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: inference
+  template:
+    metadata:
+      labels:
+        app: inference
+    spec:
+      containers:
+        - name: inference
+          image: aiad-inference:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8002
+          env:
+            - name: SHARED_DIR
+              value: /usr/src/app/shared_volume
+          volumeMounts:
+            - name: shared
+              mountPath: /usr/src/app/shared_volume
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8002
+            initialDelaySeconds: 15
+            periodSeconds: 20
+
+      volumes:
+        - name: shared
+          persistentVolumeClaim:
+            claimName: shared-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inference
+spec:
+  selector:
+    app: inference
+  ports:
+    - port: 8002
+      targetPort: 8002
