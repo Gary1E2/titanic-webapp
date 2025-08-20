@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  ui:
+    build: ./ui
+    environment:
+      - SHARED_DIR=/usr/src/app/shared_volume
+      - PROCESSING_URL=http://processing:8000
+      - TRAINING_URL=http://training:8001
+      - INFERENCE_URL=http://inference:8002
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./shared_volume:/usr/src/app/shared_volume
+
+  processing:
+    build: ./processing
+    environment:
+      - SHARED_DIR=/usr/src/app/shared_volume
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./shared_volume:/usr/src/app/shared_volume
+
+  training:
+    build: ./training
+    environment:
+      - SHARED_DIR=/usr/src/app/shared_volume
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./shared_volume:/usr/src/app/shared_volume
+
+  inference:
+    build: ./inference
+    environment:
+      - SHARED_DIR=/usr/src/app/shared_volume
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./shared_volume:/usr/src/app/shared_volume
