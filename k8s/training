@@ -18,6 +18,9 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 8001
+          envFrom:
+            - configMapRef:
+                name: training-config
           env:
             - name: SHARED_DIR
               value: /usr/src/app/shared_volume

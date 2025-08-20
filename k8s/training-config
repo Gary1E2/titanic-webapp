@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: training-config
+data:
+  SHARED_DIR: "/usr/src/app/shared_volume"
+  MAX_DEPTH: "4"

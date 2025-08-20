@@ -1,5 +1,5 @@
-# training_api.py
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from training import train_model
 
@@ -13,6 +13,10 @@ class TrainReq(BaseModel):
 def train(req: TrainReq):
     metrics = train_model(req.train_clean_filename, req.model_filename)
     return {"status": "ok", **metrics}
+
+@app.get("/health")
+def health_check():
+    return JSONResponse(content={"status": "ok"})
 
 if __name__ == "__main__":
     import uvicorn

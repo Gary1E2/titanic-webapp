@@ -14,6 +14,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc
 
 SHARED_DIR = os.getenv("SHARED_DIR", "/usr/src/app/shared_volume")
+learning_rate = float(os.getenv("MAX_DEPTH", "4"))
 
 def _class_eval(model, X_train, y_train, X_test, y_test, out_png="confusion_matrices.png"):
     plt.figure(figsize=(12, 6))
